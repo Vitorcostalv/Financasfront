@@ -1,10 +1,11 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
 import Button from '../../components/ui/Button';
 import { sanitizeInputMoney, parseBRLToCents } from '../../utils/money';
+import { useToast } from '../../hooks/useToast';
 import type { Account, Category, Transaction } from '../../types/dto';
 
 const schema = z.object({
@@ -58,6 +59,11 @@ const TransactionFormModal = ({
     categoryId: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const { addToast } = useToast();
+
+  const accountMap = useMemo(() => {
+    return new Map(accounts.map((account) => [account.id, account]));
+  }, [accounts]);
 
   useEffect(() => {
     if (initialData) {
@@ -82,6 +88,39 @@ const TransactionFormModal = ({
     setErrors({});
   }, [initialData, isOpen]);
 
+  const hasSufficientBalance = (amountCents: number) => {
+    const account = accountMap.get(form.accountId);
+    if (!account) {
+      return true;
+    }
+
+    if (account.type === 'WALLET' || account.type === 'EXTRA_POOL') {
+      const available = account.availableCents ?? account.balanceCents;
+      if (amountCents > available) {
+        addToast({
+          title: 'Saldo insuficiente',
+          description: 'Valor maior que o disponivel nesta conta.',
+          variant: 'error',
+        });
+        return false;
+      }
+    }
+
+    if (account.type === 'CREDIT_CARD' && account.creditLimitCents !== undefined) {
+      const available = account.creditLimitCents - account.balanceCents;
+      if (amountCents > available) {
+        addToast({
+          title: 'Limite insuficiente',
+          description: 'Limite disponivel no cartao nao cobre este valor.',
+          variant: 'error',
+        });
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = () => {
     const result = schema.safeParse(form);
     if (!result.success) {
@@ -94,10 +133,16 @@ const TransactionFormModal = ({
       return;
     }
     setErrors({});
+
+    const amountCents = parseBRLToCents(form.amount);
+    if (form.type === 'EXPENSE' && !hasSufficientBalance(amountCents)) {
+      return;
+    }
+
     onSubmit({
       description: form.description,
       type: form.type,
-      amountCents: parseBRLToCents(form.amount),
+      amountCents,
       date: form.date,
       accountId: form.accountId,
       categoryId: form.categoryId,
@@ -122,12 +167,14 @@ const TransactionFormModal = ({
     >
       <Input
         label="Descricao"
+        help="Explique rapidamente o que foi essa transacao."
         value={form.description}
         onChange={(event) => setForm({ ...form, description: event.target.value })}
         error={errors.description}
       />
       <Select
         label="Tipo"
+        help="Receita aumenta o saldo, despesa diminui."
         value={form.type}
         onChange={(event) => setForm({ ...form, type: event.target.value })}
         error={errors.type}
@@ -137,6 +184,7 @@ const TransactionFormModal = ({
       </Select>
       <Input
         label="Valor"
+        help="Informe o valor em reais. Ex: 120,00"
         value={form.amount}
         onChange={(event) =>
           setForm({ ...form, amount: sanitizeInputMoney(event.target.value) })
@@ -146,6 +194,7 @@ const TransactionFormModal = ({
       />
       <Input
         label="Data"
+        help="Data em que a transacao aconteceu."
         type="date"
         value={form.date}
         onChange={(event) => setForm({ ...form, date: event.target.value })}
@@ -153,6 +202,7 @@ const TransactionFormModal = ({
       />
       <Select
         label="Conta"
+        help="Conta usada na transacao."
         value={form.accountId}
         onChange={(event) => setForm({ ...form, accountId: event.target.value })}
         error={errors.accountId}
@@ -166,6 +216,7 @@ const TransactionFormModal = ({
       </Select>
       <Select
         label="Categoria"
+        help="Ajuda a organizar no dashboard."
         value={form.categoryId}
         onChange={(event) => setForm({ ...form, categoryId: event.target.value })}
         error={errors.categoryId}

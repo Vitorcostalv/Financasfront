@@ -1,6 +1,6 @@
 ﻿import api from './api';
 import { extractData } from '../utils/apiResponse';
-import { endpoints } from './endpoints';
+import { resolveRoute } from './routeResolver';
 import type { MonthlyProjection } from '../types/dto';
 
 export const getMonthlyProjection = async (
@@ -8,7 +8,8 @@ export const getMonthlyProjection = async (
   startYear: number,
   months: number
 ) => {
-  const response = await api.get(endpoints.projection.mensal, {
+  const path = await resolveRoute('planProjection');
+  const response = await api.get(path, {
     params: { startMonth, startYear, months },
   });
   return extractData<MonthlyProjection[]>(response);

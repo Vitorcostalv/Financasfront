@@ -109,7 +109,7 @@ const PlanDetailsPage = () => {
   const remaining = totals.total - totals.entry;
 
   if (!planId) {
-    return <ErrorState message="Plano nao encontrado." />;
+    return <ErrorState message="Planejamento nao encontrado." />;
   }
 
   return (

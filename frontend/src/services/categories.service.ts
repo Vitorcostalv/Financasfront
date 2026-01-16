@@ -1,6 +1,6 @@
 ﻿import api from './api';
 import { extractData } from '../utils/apiResponse';
-import { endpoints } from './endpoints';
+import { resolveRoute } from './routeResolver';
 import type { Category } from '../types/dto';
 
 type CategoryPayload = {
@@ -10,21 +10,25 @@ type CategoryPayload = {
 };
 
 export const getCategories = async () => {
-  const response = await api.get(endpoints.categories.list);
+  const path = await resolveRoute('categories');
+  const response = await api.get(path);
   return extractData<Category[]>(response);
 };
 
 export const createCategory = async (payload: CategoryPayload) => {
-  const response = await api.post(endpoints.categories.create, payload);
+  const path = await resolveRoute('categories');
+  const response = await api.post(path, payload);
   return extractData<Category>(response);
 };
 
 export const updateCategory = async (id: string, payload: CategoryPayload) => {
-  const response = await api.put(endpoints.categories.update(id), payload);
+  const basePath = await resolveRoute('categories');
+  const response = await api.put(`${basePath}/${id}`, payload);
   return extractData<Category>(response);
 };
 
 export const deleteCategory = async (id: string) => {
-  const response = await api.delete(endpoints.categories.remove(id));
+  const basePath = await resolveRoute('categories');
+  const response = await api.delete(`${basePath}/${id}`);
   return extractData<boolean>(response);
 };

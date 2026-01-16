@@ -2,12 +2,11 @@
 
 const navItems = [
   { label: 'Dashboard', path: '/dashboard' },
-  { label: 'Transações', path: '/transacoes' },
+  { label: 'Transacoes', path: '/transacoes' },
   { label: 'Categorias', path: '/categorias' },
   { label: 'Contas', path: '/contas' },
-  { label: 'Planos', path: '/planos' },
-  { label: 'Projeção', path: '/projecao' },
-  { label: 'Configurações', path: '/configuracoes' },
+  { label: 'Planejamento', path: '/planos' },
+  { label: 'Configuracoes', path: '/configuracoes' },
 ];
 
 const Sidebar = () => (
@@ -32,7 +31,7 @@ const Sidebar = () => (
       ))}
     </nav>
     <div className="rounded-2xl border border-app-border bg-app-panelAlt p-4 text-xs text-app-muted">
-      Versão 1.0 · UI escura
+      Versao 1.0 · UI escura
     </div>
   </aside>
 );

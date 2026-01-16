@@ -12,6 +12,27 @@ import { formatCentsToBRL } from '../../utils/money';
 import { useToast } from '../../hooks/useToast';
 import { getApiErrorMessage } from '../../utils/apiResponse';
 
+const accountTypeLabel = (type?: string) => {
+  switch (type) {
+    case 'WALLET':
+      return 'Carteira';
+    case 'EXTRA_POOL':
+      return 'Extra';
+    case 'EXPENSE_POOL':
+      return 'Despesas';
+    case 'CREDIT_CARD':
+      return 'Cartao de credito';
+    case 'BANK':
+      return 'Banco';
+    case 'CREDIT':
+      return 'Credito';
+    case 'WALLET_OLD':
+      return 'Carteira';
+    default:
+      return type ?? '-';
+  }
+};
+
 const AccountsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { addToast } = useToast();
@@ -52,7 +73,7 @@ const AccountsPage = () => {
             {data.map((account) => (
               <tr key={account.id}>
                 <td className="px-4 py-3">{account.name}</td>
-                <td className="px-4 py-3">{account.type}</td>
+                <td className="px-4 py-3">{accountTypeLabel(account.type)}</td>
                 <td className="px-4 py-3 font-mono text-right">
                   {formatCentsToBRL(account.balanceCents)}
                 </td>

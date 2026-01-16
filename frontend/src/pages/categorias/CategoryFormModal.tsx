@@ -63,12 +63,14 @@ const CategoryFormModal = ({ isOpen, onClose, onSubmit, initialData }: Props) =>
     >
       <Input
         label="Nome"
+        help="Use um nome claro para organizar suas despesas ou receitas."
         value={form.name}
         onChange={(event) => setForm({ ...form, name: event.target.value })}
         error={errors.name}
       />
       <Select
         label="Tipo"
+        help="Defina se a categoria pertence a receitas ou despesas."
         value={form.type}
         onChange={(event) => setForm({ ...form, type: event.target.value })}
         error={errors.type}
@@ -78,6 +80,7 @@ const CategoryFormModal = ({ isOpen, onClose, onSubmit, initialData }: Props) =>
       </Select>
       <Input
         label="Cor"
+        help="Escolha uma cor para destacar nos graficos."
         type="color"
         value={form.color}
         onChange={(event) => setForm({ ...form, color: event.target.value })}

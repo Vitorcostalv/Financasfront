@@ -4,12 +4,11 @@ import { useAuthStore } from '../store/auth.store';
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
-  '/transacoes': 'Transações',
+  '/transacoes': 'Transacoes',
   '/categorias': 'Categorias',
   '/contas': 'Contas',
-  '/planos': 'Planos',
-  '/projecao': 'Projeção mensal',
-  '/configuracoes': 'Configurações',
+  '/planos': 'Planejamento',
+  '/configuracoes': 'Configuracoes',
 };
 
 const Topbar = () => {
@@ -25,7 +24,7 @@ const Topbar = () => {
 
   const title =
     pageTitles[location.pathname] ??
-    (location.pathname.startsWith('/planos/') ? 'Detalhes do plano' : 'Finance');
+    (location.pathname.startsWith('/planos/') ? 'Detalhes do planejamento' : 'Finance');
 
   return (
     <header className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4 border-b border-app-border bg-app-panel/70 px-6 py-4 backdrop-blur md:px-10">
@@ -38,11 +37,11 @@ const Topbar = () => {
           variant="primary"
           onClick={() => navigate('/transacoes?modal=nova')}
         >
-          Nova transação
+          Nova transacao
         </Button>
         <div className="hidden flex-col text-right text-xs text-app-muted md:flex">
           <span>Bem-vindo</span>
-          <span className="text-sm text-white">{user?.name ?? 'Usuário'}</span>
+          <span className="text-sm text-white">{user?.name ?? 'Usuario'}</span>
         </div>
         <Button variant="ghost" onClick={handleLogout}>
           Sair

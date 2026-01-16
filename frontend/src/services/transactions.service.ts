@@ -1,6 +1,6 @@
 ﻿import api from './api';
 import { extractData } from '../utils/apiResponse';
-import { endpoints } from './endpoints';
+import { resolveRoute } from './routeResolver';
 import type { Transaction } from '../types/dto';
 
 type TransactionPayload = {
@@ -21,21 +21,25 @@ type TransactionFilters = {
 };
 
 export const getTransactions = async (filters?: TransactionFilters) => {
-  const response = await api.get(endpoints.transactions.list, { params: filters });
+  const path = await resolveRoute('transactions');
+  const response = await api.get(path, { params: filters });
   return extractData<Transaction[]>(response);
 };
 
 export const createTransaction = async (payload: TransactionPayload) => {
-  const response = await api.post(endpoints.transactions.create, payload);
+  const path = await resolveRoute('transactions');
+  const response = await api.post(path, payload);
   return extractData<Transaction>(response);
 };
 
 export const updateTransaction = async (id: string, payload: TransactionPayload) => {
-  const response = await api.put(endpoints.transactions.update(id), payload);
+  const basePath = await resolveRoute('transactions');
+  const response = await api.put(`${basePath}/${id}`, payload);
   return extractData<Transaction>(response);
 };
 
 export const deleteTransaction = async (id: string) => {
-  const response = await api.delete(endpoints.transactions.remove(id));
+  const basePath = await resolveRoute('transactions');
+  const response = await api.delete(`${basePath}/${id}`);
   return extractData<boolean>(response);
 };

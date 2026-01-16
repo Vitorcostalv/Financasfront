@@ -18,6 +18,8 @@ export type Account = {
   name: string;
   type: string;
   balanceCents: number;
+  creditLimitCents?: number;
+  availableCents?: number;
   createdAt?: string;
 };
 
@@ -47,6 +49,20 @@ export type DashboardSummary = {
   resultCents?: number;
   incomeCents?: number;
   expenseCents?: number;
+  incomeForecastCents?: number;
+  expenseForecastCents?: number;
+  plannedIncomeCents?: number;
+  plannedExpenseCents?: number;
+  walletCents?: number;
+  carteiraCents?: number;
+  extraCents?: number;
+  expensePoolCents?: number;
+  despesasCents?: number;
+  availableCents?: number;
+  disponivelCents?: number;
+  creditLimitCents?: number;
+  creditUsedCents?: number;
+  creditAvailableCents?: number;
 };
 
 export type CategoryExpense = {
@@ -62,10 +78,29 @@ export type DailyFlow = {
   expenseCents: number;
 };
 
+export type MonthlySeriesPoint = {
+  month: number;
+  year: number;
+  label?: string;
+  incomeCents?: number;
+  expenseCents?: number;
+  availableCents?: number;
+  plannedIncomeCents?: number;
+  plannedExpenseCents?: number;
+  forecastIncomeCents?: number;
+  forecastExpenseCents?: number;
+};
+
 export type Plan = {
   id: string;
   name: string;
   description?: string;
+  minBudgetCents?: number;
+  maxBudgetCents?: number;
+  paymentType?: string;
+  dueDate?: string;
+  installmentsCount?: number;
+  firstInstallmentDate?: string;
   totalAmountCents?: number;
   entryAmountCents?: number;
   createdAt?: string;
@@ -101,4 +136,18 @@ export type MonthlyProjection = {
   planejadoCents: number;
   resultadoCents: number;
   saldoProjetadoCents: number;
+};
+
+export type Recurrence = {
+  id: string;
+  name: string;
+  type: 'INCOME' | 'EXPENSE' | string;
+  amountCents: number;
+  frequency: 'MONTHLY' | 'WEEKLY' | 'YEARLY' | 'ONE_TIME' | string;
+  startDate: string;
+  endDate?: string | null;
+  isFixed?: boolean;
+  fixed?: boolean;
+  description?: string;
+  createdAt?: string;
 };

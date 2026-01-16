@@ -136,6 +136,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
     >
       <Input
         label="Descricao"
+        help="Explique a compra. Ex: 'Cadeira + mesa para estudos'."
         value={form.description}
         onChange={(event) => setForm({ ...form, description: event.target.value })}
         error={errors.description}
@@ -143,6 +144,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
       <div className="grid gap-4 md:grid-cols-2">
         <Input
           label="Quantidade"
+          help="Quantidade de itens para este planejamento."
           type="number"
           value={form.quantity}
           onChange={(event) => setForm({ ...form, quantity: event.target.value })}
@@ -150,6 +152,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
         />
         <Input
           label="Valor unitario"
+          help="Valor unitario em reais."
           value={form.unitAmount}
           onChange={(event) => setForm({ ...form, unitAmount: sanitizeInputMoney(event.target.value) })}
           error={errors.unitAmount}
@@ -158,6 +161,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
       </div>
       <Select
         label="Tipo de compra"
+        help="Escolha se o pagamento sera a vista ou parcelado."
         value={form.purchaseType}
         onChange={(event) => setForm({ ...form, purchaseType: event.target.value })}
       >
@@ -168,6 +172,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
       {form.purchaseType === 'ONE_TIME' && (
         <Input
           label="Data de vencimento"
+          help="Data prevista para pagamento."
           type="date"
           value={form.dueDate}
           onChange={(event) => setForm({ ...form, dueDate: event.target.value })}
@@ -179,6 +184,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
         <div className="grid gap-4 md:grid-cols-3">
           <Input
             label="Entrada"
+            help="Valor de entrada em reais."
             value={form.entryAmount}
             onChange={(event) => setForm({ ...form, entryAmount: sanitizeInputMoney(event.target.value) })}
             error={errors.entryAmount}
@@ -186,6 +192,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
           />
           <Input
             label="Numero de parcelas"
+            help="Quantidade de parcelas."
             type="number"
             value={form.installmentsCount}
             onChange={(event) => setForm({ ...form, installmentsCount: event.target.value })}
@@ -193,6 +200,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
           />
           <Input
             label="Primeira parcela"
+            help="Data da primeira parcela."
             type="date"
             value={form.firstInstallmentDate}
             onChange={(event) => setForm({ ...form, firstInstallmentDate: event.target.value })}
@@ -204,6 +212,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
       <div className="grid gap-4 md:grid-cols-2">
         <Select
           label="Categoria (opcional)"
+          help="Vincule a uma categoria se desejar."
           value={form.categoryId}
           onChange={(event) => setForm({ ...form, categoryId: event.target.value })}
         >
@@ -216,6 +225,7 @@ const PlanItemFormModal = ({ isOpen, onClose, onSubmit, accounts, categories, in
         </Select>
         <Select
           label="Conta (opcional)"
+          help="Conta para pagamento deste item."
           value={form.accountId}
           onChange={(event) => setForm({ ...form, accountId: event.target.value })}
         >

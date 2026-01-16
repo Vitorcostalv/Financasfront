@@ -9,7 +9,6 @@ import CategoriesPage from '../pages/categorias/CategoriesPage';
 import AccountsPage from '../pages/contas/AccountsPage';
 import PlansPage from '../pages/planos/PlansPage';
 import PlanDetailsPage from '../pages/planos/PlanDetailsPage';
-import ProjectionPage from '../pages/projecao/ProjectionPage';
 import SettingsPage from '../pages/settings/SettingsPage';
 
 const AppRoutes = () => (
@@ -25,7 +24,7 @@ const AppRoutes = () => (
         <Route path="/contas" element={<AccountsPage />} />
         <Route path="/planos" element={<PlansPage />} />
         <Route path="/planos/:id" element={<PlanDetailsPage />} />
-        <Route path="/projecao" element={<ProjectionPage />} />
+        <Route path="/projecao" element={<Navigate to="/planos?tab=projecao" replace />} />
         <Route path="/configuracoes" element={<SettingsPage />} />
       </Route>
     </Route>
