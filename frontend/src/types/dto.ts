@@ -17,6 +17,9 @@ export type Account = {
   id: string;
   name: string;
   type: string;
+  valueType?: 'FIXED' | 'VARIABLE' | string;
+  isFixed?: boolean;
+  isVariable?: boolean;
   balanceCents: number;
   creditLimitCents?: number;
   availableCents?: number;
@@ -76,6 +79,16 @@ export type DailyFlow = {
   date: string;
   incomeCents: number;
   expenseCents: number;
+};
+
+export type AccountSchedule = {
+  id: string;
+  type: 'INCOME' | 'EXPENSE' | string;
+  amountCents: number;
+  frequency: 'MONTHLY' | 'WEEKLY' | 'YEARLY' | 'ONE_TIME' | string;
+  startDate: string;
+  endDate?: string | null;
+  createdAt?: string;
 };
 
 export type MonthlySeriesPoint = {

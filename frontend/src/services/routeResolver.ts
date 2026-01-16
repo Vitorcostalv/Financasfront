@@ -8,7 +8,9 @@ type RouteKey =
   | 'dashboardDespesas'
   | 'dashboardSerieMensal'
   | 'planProjection'
-  | 'recurrences';
+  | 'recurrences'
+  | 'settingsProfile'
+  | 'settingsPassword';
 
 const ROUTE_CACHE_PREFIX = 'finance.route';
 
@@ -70,6 +72,18 @@ const routeCandidates: Record<RouteKey, string[]> = {
     '/settings/recurrences',
     '/api/configuracoes/recorrencias',
     '/api/settings/recurrences',
+  ],
+  settingsProfile: [
+    '/configuracoes/perfil',
+    '/settings/profile',
+    '/api/configuracoes/perfil',
+    '/api/settings/profile',
+  ],
+  settingsPassword: [
+    '/configuracoes/senha',
+    '/settings/password',
+    '/api/configuracoes/senha',
+    '/api/settings/password',
   ],
 };
 

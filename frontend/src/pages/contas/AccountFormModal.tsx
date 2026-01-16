@@ -9,6 +9,7 @@ import { sanitizeInputMoney, parseBRLToCents } from '../../utils/money';
 const schema = z.object({
   name: z.string().min(2, 'Informe o nome.'),
   type: z.string().min(1, 'Informe o tipo.'),
+  valueType: z.string().min(1, 'Informe o tipo de valor.'),
   balance: z.string().min(1, 'Informe o saldo inicial.'),
   creditLimit: z.string().optional(),
 });
@@ -21,6 +22,7 @@ type Props = {
   onSubmit: (payload: {
     name: string;
     type: 'WALLET' | 'EXPENSE_POOL' | 'EXTRA_POOL' | 'CREDIT_CARD';
+    valueType: 'FIXED' | 'VARIABLE';
     balanceCents: number;
     creditLimitCents?: number;
   }) => void;
@@ -30,6 +32,7 @@ const AccountFormModal = ({ isOpen, onClose, onSubmit }: Props) => {
   const [form, setForm] = useState<FormData>({
     name: '',
     type: 'WALLET',
+    valueType: 'FIXED',
     balance: '',
     creditLimit: '',
   });
@@ -39,7 +42,7 @@ const AccountFormModal = ({ isOpen, onClose, onSubmit }: Props) => {
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ name: '', type: 'WALLET', balance: '', creditLimit: '' });
+      setForm({ name: '', type: 'WALLET', valueType: 'FIXED', balance: '', creditLimit: '' });
       setErrors({});
     }
   }, [isOpen]);
@@ -66,6 +69,7 @@ const AccountFormModal = ({ isOpen, onClose, onSubmit }: Props) => {
     const payload = {
       name: form.name,
       type: form.type as 'WALLET' | 'EXPENSE_POOL' | 'EXTRA_POOL' | 'CREDIT_CARD',
+      valueType: form.valueType as 'FIXED' | 'VARIABLE',
       balanceCents: parseBRLToCents(form.balance),
       creditLimitCents: showCreditLimit ? parseBRLToCents(form.creditLimit ?? '') : undefined,
     };
@@ -103,6 +107,16 @@ const AccountFormModal = ({ isOpen, onClose, onSubmit }: Props) => {
         <option value="EXPENSE_POOL">Despesas</option>
         <option value="EXTRA_POOL">Extra</option>
         <option value="CREDIT_CARD">Cartao de credito</option>
+      </Select>
+      <Select
+        label="Tipo de valor"
+        help="Fixa: valor padrao da conta. Variavel: use periodos para valores que mudam."
+        value={form.valueType}
+        onChange={(event) => setForm({ ...form, valueType: event.target.value })}
+        error={errors.valueType}
+      >
+        <option value="FIXED">Fixa</option>
+        <option value="VARIABLE">Variavel</option>
       </Select>
       <Input
         label="Saldo inicial"

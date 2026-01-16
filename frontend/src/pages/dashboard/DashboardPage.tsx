@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   PieChart,
@@ -15,6 +15,7 @@ import {
 } from 'recharts';
 import Card from '../../components/ui/Card';
 import Select from '../../components/ui/Select';
+import Button from '../../components/ui/Button';
 import LoadingState from '../../components/feedback/LoadingState';
 import EmptyState from '../../components/feedback/EmptyState';
 import ErrorState from '../../components/feedback/ErrorState';
@@ -27,6 +28,7 @@ import {
 } from '../../services/dashboard.service';
 import { getTransactions } from '../../services/transactions.service';
 import { getAccounts } from '../../services/accounts.service';
+import { getApiErrorMessage } from '../../utils/apiResponse';
 import { formatCentsToBRL } from '../../utils/money';
 import { formatDateBR, formatMonthYear, getCurrentMonthYear, getMonthOptions } from '../../utils/dates';
 
@@ -58,9 +60,16 @@ const DashboardPage = () => {
   const [month, setMonth] = useState(current.month);
   const [year, setYear] = useState(current.year);
 
-  const { data: resumo, isLoading: resumoLoading, isError: resumoError } = useQuery({
+  const {
+    data: resumo,
+    isLoading: resumoLoading,
+    isError: resumoError,
+    error: resumoErrorData,
+    refetch: refetchResumo,
+  } = useQuery({
     queryKey: ['dashboard', 'resumo', month, year],
     queryFn: () => getResumo(month, year),
+    retry: false,
   });
 
   const { data: despesas, isLoading: despesasLoading, isError: despesasError } = useQuery({
@@ -79,9 +88,16 @@ const DashboardPage = () => {
     [month, year]
   );
 
-  const { data: serieMensal, isLoading: serieLoading, isError: serieError } = useQuery({
+  const {
+    data: serieMensal,
+    isLoading: serieLoading,
+    isError: serieError,
+    error: serieErrorData,
+    refetch: refetchSerie,
+  } = useQuery({
     queryKey: ['dashboard', 'serie-mensal', seriesStart.month, seriesStart.year, seriesMonths],
     queryFn: () => getSerieMensal(seriesStart.month, seriesStart.year, seriesMonths),
+    retry: false,
   });
 
   const { data: transacoes } = useQuery({
@@ -93,6 +109,18 @@ const DashboardPage = () => {
     queryKey: ['accounts'],
     queryFn: getAccounts,
   });
+
+  useEffect(() => {
+    if (resumoError) {
+      console.error('[Finance][Dashboard] Erro ao carregar resumo', resumoErrorData);
+    }
+  }, [resumoError, resumoErrorData]);
+
+  useEffect(() => {
+    if (serieError) {
+      console.error('[Finance][Dashboard] Erro ao carregar serie mensal', serieErrorData);
+    }
+  }, [serieError, serieErrorData]);
 
   const recentTransactions = useMemo(() => {
     if (!transacoes) {
@@ -111,20 +139,44 @@ const DashboardPage = () => {
   const availableCents = pickValue(resumo, ['availableCents', 'disponivelCents']);
 
   const monthIncomeCents =
-    pickValue(resumo, ['incomeMonthCents', 'incomeCents', 'totalIncomeCents', 'receitasCents', 'receitaCents'], 0) ?? 0;
+    pickValue(
+      resumo,
+      [
+        'incomeMonthCents',
+        'incomeCents',
+        'totalIncomeCents',
+        'receitasCents',
+        'receitaCents',
+        'receitasMesCents',
+      ],
+      0
+    ) ?? 0;
   const monthExpenseCents =
-    pickValue(resumo, ['expenseMonthCents', 'expenseCents', 'totalExpenseCents', 'despesasCents', 'despesaCents'], 0) ?? 0;
+    pickValue(
+      resumo,
+      [
+        'expenseMonthCents',
+        'expenseCents',
+        'totalExpenseCents',
+        'despesasCents',
+        'despesaCents',
+        'despesasMesCents',
+      ],
+      0
+    ) ?? 0;
   const forecastIncomeCents = pickValue(resumo, [
     'incomeForecastCents',
     'receitaPrevistaCents',
     'plannedIncomeCents',
     'forecastIncomeCents',
+    'receitasPrevistasCents',
   ]);
   const forecastExpenseCents = pickValue(resumo, [
     'expenseForecastCents',
     'despesaPrevistaCents',
     'plannedExpenseCents',
     'forecastExpenseCents',
+    'despesasPrevistasCents',
   ]);
   const hasForecastSummary =
     typeof forecastIncomeCents === 'number' || typeof forecastExpenseCents === 'number';
@@ -170,20 +222,34 @@ const DashboardPage = () => {
         (item.month && item.year
           ? `${String(item.month).padStart(2, '0')}/${String(item.year).slice(-2)}`
           : '-'),
-      incomeCents: pickValue(item, ['incomeCents', 'receitasCents', 'totalIncomeCents', 'receitaCents']),
-      expenseCents: pickValue(item, ['expenseCents', 'despesasCents', 'totalExpenseCents', 'despesaCents']),
+      incomeCents: pickValue(item, [
+        'incomeCents',
+        'receitasCents',
+        'totalIncomeCents',
+        'receitaCents',
+        'receitasMesCents',
+      ]),
+      expenseCents: pickValue(item, [
+        'expenseCents',
+        'despesasCents',
+        'totalExpenseCents',
+        'despesaCents',
+        'despesasMesCents',
+      ]),
       availableCents: pickValue(item, ['availableCents', 'disponivelCents', 'saldoCents']),
       incomeForecastCents: pickValue(item, [
         'incomeForecastCents',
         'receitaPrevistaCents',
         'plannedIncomeCents',
         'forecastIncomeCents',
+        'receitasPrevistasCents',
       ]),
       expenseForecastCents: pickValue(item, [
         'expenseForecastCents',
         'despesaPrevistaCents',
         'plannedExpenseCents',
         'forecastExpenseCents',
+        'despesasPrevistasCents',
       ]),
     }));
   }, [serieMensal]);
@@ -193,6 +259,17 @@ const DashboardPage = () => {
       typeof item.incomeForecastCents === 'number' ||
       typeof item.expenseForecastCents === 'number'
   );
+
+  const resumoErrorMessage = resumoError
+    ? getApiErrorMessage(resumoErrorData, 'Nao foi possivel carregar o resumo.')
+    : '';
+  const serieErrorMessage = serieError
+    ? getApiErrorMessage(serieErrorData, 'Grafico indisponivel.')
+    : '';
+
+  const despesasData = despesas ?? [];
+  const fluxoData = fluxo ?? [];
+  const hasResumoData = Boolean(resumo);
 
   return (
     <div className="space-y-8">
@@ -223,9 +300,16 @@ const DashboardPage = () => {
       </div>
 
       {resumoLoading && <LoadingState label="Carregando resumo..." />}
-      {resumoError && <ErrorState message="Nao foi possivel carregar o resumo." />}
+      {resumoError && !resumoLoading && (
+        <div className="space-y-3">
+          <ErrorState message={resumoErrorMessage} />
+          <Button size="sm" variant="ghost" onClick={() => refetchResumo()}>
+            Tentar novamente
+          </Button>
+        </div>
+      )}
 
-      {!resumoLoading && !resumoError && (
+      {!resumoLoading && hasResumoData && (
         <>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <Card title="Carteira">
@@ -233,26 +317,36 @@ const DashboardPage = () => {
               <p className="text-xs text-app-muted">Seu dinheiro principal</p>
             </Card>
             <Card title="Extra">
-              <p className="text-2xl font-semibold text-emerald-400">{formatCentsToBRL(extraCents)}</p>
+              <p className="text-2xl font-semibold text-emerald-400">
+                {formatCentsToBRL(extraCents)}
+              </p>
               <p className="text-xs text-app-muted">Somado ao disponivel</p>
             </Card>
             <Card title="Despesas">
-              <p className="text-2xl font-semibold text-orange-300">{formatCentsToBRL(expensePoolCents)}</p>
+              <p className="text-2xl font-semibold text-orange-300">
+                {formatCentsToBRL(expensePoolCents)}
+              </p>
               <p className="text-xs text-app-muted">Reservas e compromissos</p>
             </Card>
             <Card title="Disponivel">
-              <p className="text-2xl font-semibold text-app-accent">{formatCentsToBRL(availableValue)}</p>
+              <p className="text-2xl font-semibold text-app-accent">
+                {formatCentsToBRL(availableValue)}
+              </p>
               <p className="text-xs text-app-muted">Carteira + extra - despesas</p>
             </Card>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <Card title="Receitas do mes">
-              <p className="text-2xl font-semibold text-emerald-400">{formatCentsToBRL(monthIncomeCents)}</p>
+              <p className="text-2xl font-semibold text-emerald-400">
+                {formatCentsToBRL(monthIncomeCents)}
+              </p>
               <p className="text-xs text-app-muted">Entradas confirmadas</p>
             </Card>
             <Card title="Despesas do mes">
-              <p className="text-2xl font-semibold text-orange-300">{formatCentsToBRL(monthExpenseCents)}</p>
+              <p className="text-2xl font-semibold text-orange-300">
+                {formatCentsToBRL(monthExpenseCents)}
+              </p>
               <p className="text-xs text-app-muted">Saidas confirmadas</p>
             </Card>
             {hasForecastSummary && (
@@ -290,67 +384,87 @@ const DashboardPage = () => {
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-app-muted">Disponivel</p>
-              <p className="text-xl font-semibold text-emerald-400">{formatCentsToBRL(cardAvailable)}</p>
+              <p className="text-xl font-semibold text-emerald-400">
+                {formatCentsToBRL(cardAvailable)}
+              </p>
             </div>
           </div>
         </Card>
       )}
 
-      <Card title="Serie mensal">
-        {serieLoading && <LoadingState label="Carregando serie..." />}
-        {serieError && <ErrorState message="Nao foi possivel carregar a serie mensal." />}
-        {!serieLoading && !serieError && seriesData.length > 0 && (
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={seriesData}>
-                <CartesianGrid stroke="#1F2A40" strokeDasharray="4 4" />
-                <XAxis dataKey="label" stroke="#94A3B8" />
-                <YAxis stroke="#94A3B8" />
-                <Tooltip
-                  formatter={(value: number) => formatCentsToBRL(value)}
-                  contentStyle={{ background: '#121826', border: '1px solid #1F2A40' }}
-                />
-                <Legend />
-                <Line type="monotone" dataKey="incomeCents" stroke="#22c55e" name="Receitas" />
-                <Line type="monotone" dataKey="expenseCents" stroke="#f97316" name="Despesas" />
-                <Line type="monotone" dataKey="availableCents" stroke="#38bdf8" name="Disponivel" />
-                {hasSeriesForecast && (
-                  <>
-                    <Line
-                      type="monotone"
-                      dataKey="incomeForecastCents"
-                      stroke="#86efac"
-                      strokeDasharray="5 4"
-                      name="Receita prevista"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="expenseForecastCents"
-                      stroke="#fdba74"
-                      strokeDasharray="5 4"
-                      name="Despesa prevista"
-                    />
-                  </>
-                )}
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-        {!serieLoading && !serieError && seriesData.length === 0 && (
-          <EmptyState message="Sem dados para a serie mensal." />
-        )}
-      </Card>
+      {!serieError ? (
+        <Card title="Serie mensal">
+          {serieLoading && <LoadingState label="Carregando serie..." />}
+          {!serieLoading && seriesData.length > 0 && (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={seriesData}>
+                  <CartesianGrid stroke="#1F2A40" strokeDasharray="4 4" />
+                  <XAxis dataKey="label" stroke="#94A3B8" />
+                  <YAxis stroke="#94A3B8" />
+                  <Tooltip
+                    formatter={(value: number) => formatCentsToBRL(value)}
+                    contentStyle={{ background: '#121826', border: '1px solid #1F2A40' }}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="incomeCents" stroke="#22c55e" name="Receitas" />
+                  <Line type="monotone" dataKey="expenseCents" stroke="#f97316" name="Despesas" />
+                  <Line type="monotone" dataKey="availableCents" stroke="#38bdf8" name="Disponivel" />
+                  {hasSeriesForecast && (
+                    <>
+                      <Line
+                        type="monotone"
+                        dataKey="incomeForecastCents"
+                        stroke="#86efac"
+                        strokeDasharray="5 4"
+                        name="Receita prevista"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="expenseForecastCents"
+                        stroke="#fdba74"
+                        strokeDasharray="5 4"
+                        name="Despesa prevista"
+                      />
+                    </>
+                  )}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+          {!serieLoading && seriesData.length === 0 && (
+            <EmptyState message="Sem dados para a serie mensal." />
+          )}
+        </Card>
+      ) : (
+        <Card
+          title="Grafico indisponivel"
+          action={
+            <Button size="sm" variant="ghost" onClick={() => refetchSerie()}>
+              Tentar novamente
+            </Button>
+          }
+        >
+          <ErrorState message={serieErrorMessage} />
+        </Card>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1.1fr_1.4fr]">
         <Card title="Despesas por categoria">
           {despesasLoading && <LoadingState label="Carregando grafico..." />}
           {despesasError && <ErrorState message="Nao foi possivel carregar o grafico." />}
-          {!despesasLoading && !despesasError && despesas && despesas.length > 0 && (
+          {!despesasLoading && !despesasError && despesasData.length > 0 && (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={despesas} dataKey="totalCents" nameKey="categoryName" innerRadius={60} outerRadius={100}>
-                    {despesas.map((entry) => (
+                  <Pie
+                    data={despesasData}
+                    dataKey="totalCents"
+                    nameKey="categoryName"
+                    innerRadius={60}
+                    outerRadius={100}
+                  >
+                    {despesasData.map((entry) => (
                       <Cell key={entry.categoryId} fill={entry.color ?? '#00D1B2'} />
                     ))}
                   </Pie>
@@ -362,7 +476,7 @@ const DashboardPage = () => {
               </ResponsiveContainer>
             </div>
           )}
-          {!despesasLoading && !despesasError && (!despesas || despesas.length === 0) && (
+          {!despesasLoading && !despesasError && despesasData.length === 0 && (
             <EmptyState message="Ainda nao ha despesas para este periodo." />
           )}
         </Card>
@@ -370,10 +484,10 @@ const DashboardPage = () => {
         <Card title="Fluxo diario">
           {fluxoLoading && <LoadingState label="Carregando fluxo..." />}
           {fluxoError && <ErrorState message="Nao foi possivel carregar o fluxo diario." />}
-          {!fluxoLoading && !fluxoError && fluxo && fluxo.length > 0 && (
+          {!fluxoLoading && !fluxoError && fluxoData.length > 0 && (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={fluxo}>
+                <LineChart data={fluxoData}>
                   <CartesianGrid stroke="#1F2A40" strokeDasharray="4 4" />
                   <XAxis dataKey="date" tickFormatter={(value) => value.slice(0, 5)} stroke="#94A3B8" />
                   <YAxis stroke="#94A3B8" />
@@ -388,7 +502,7 @@ const DashboardPage = () => {
               </ResponsiveContainer>
             </div>
           )}
-          {!fluxoLoading && !fluxoError && (!fluxo || fluxo.length === 0) && (
+          {!fluxoLoading && !fluxoError && fluxoData.length === 0 && (
             <EmptyState message="Sem dados de fluxo diario no periodo." />
           )}
         </Card>
