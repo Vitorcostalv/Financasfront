@@ -17,16 +17,16 @@ type FormData = z.infer<typeof schema>;
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (payload: { name: string; type: string; balanceCents: number }) => void;
+  onSubmit: (payload: { name: string; type: 'BANK' | 'WALLET' | 'CREDIT'; balanceCents: number }) => void;
 };
 
 const AccountFormModal = ({ isOpen, onClose, onSubmit }: Props) => {
-  const [form, setForm] = useState<FormData>({ name: '', type: 'Corrente', balance: '' });
+  const [form, setForm] = useState<FormData>({ name: '', type: 'BANK', balance: '' });
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ name: '', type: 'Corrente', balance: '' });
+      setForm({ name: '', type: 'BANK', balance: '' });
       setErrors({});
     }
   }, [isOpen]);
@@ -45,7 +45,7 @@ const AccountFormModal = ({ isOpen, onClose, onSubmit }: Props) => {
     setErrors({});
     onSubmit({
       name: form.name,
-      type: form.type,
+      type: form.type as 'BANK' | 'WALLET' | 'CREDIT',
       balanceCents: parseBRLToCents(form.balance),
     });
   };
@@ -74,9 +74,9 @@ const AccountFormModal = ({ isOpen, onClose, onSubmit }: Props) => {
         onChange={(event) => setForm({ ...form, type: event.target.value })}
         error={errors.type}
       >
-        <option value="Corrente">Corrente</option>
-        <option value="Poupanca">Poupanca</option>
-        <option value="Carteira">Carteira</option>
+        <option value="BANK">Banco</option>
+        <option value="WALLET">Carteira</option>
+        <option value="CREDIT">Credito</option>
       </Select>
       <Input
         label="Saldo inicial"

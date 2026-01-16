@@ -15,6 +15,7 @@ import { getCategories } from '../../services/categories.service';
 import { formatCentsToBRL } from '../../utils/money';
 import { formatDateBR } from '../../utils/dates';
 import { useToast } from '../../hooks/useToast';
+import { getApiErrorMessage } from '../../utils/apiResponse';
 import type { PlanItem } from '../../types/dto';
 
 const PlanDetailsPage = () => {
@@ -54,7 +55,12 @@ const PlanDetailsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['plan-items', planId] });
       setIsModalOpen(false);
     },
-    onError: () => addToast({ title: 'Falha ao criar item', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao criar item',
+        description: getApiErrorMessage(error, 'Falha ao criar item.'),
+        variant: 'error',
+      }),
   });
 
   const updateMutation = useMutation({
@@ -65,7 +71,12 @@ const PlanDetailsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['plan-items', planId] });
       setIsModalOpen(false);
     },
-    onError: () => addToast({ title: 'Falha ao atualizar item', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao atualizar item',
+        description: getApiErrorMessage(error, 'Falha ao atualizar item.'),
+        variant: 'error',
+      }),
   });
 
   const deleteMutation = useMutation({
@@ -74,7 +85,12 @@ const PlanDetailsPage = () => {
       addToast({ title: 'Item removido', variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['plan-items', planId] });
     },
-    onError: () => addToast({ title: 'Falha ao remover item', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao remover item',
+        description: getApiErrorMessage(error, 'Falha ao remover item.'),
+        variant: 'error',
+      }),
   });
 
   const totals = useMemo(() => {

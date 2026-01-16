@@ -1,5 +1,6 @@
 ﻿import api from './api';
 import { extractData } from '../utils/apiResponse';
+import { endpoints } from './endpoints';
 import type { User } from '../types/dto';
 
 type LoginPayload = {
@@ -19,11 +20,11 @@ type AuthResponse = {
 };
 
 export const login = async (payload: LoginPayload) => {
-  const response = await api.post('/auth/login', payload);
+  const response = await api.post(endpoints.auth.login, payload);
   return extractData<AuthResponse>(response);
 };
 
 export const register = async (payload: RegisterPayload) => {
-  const response = await api.post('/auth/register', payload);
+  const response = await api.post(endpoints.auth.register, payload);
   return extractData<AuthResponse>(response);
 };

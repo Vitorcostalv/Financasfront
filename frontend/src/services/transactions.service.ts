@@ -1,5 +1,6 @@
 ﻿import api from './api';
 import { extractData } from '../utils/apiResponse';
+import { endpoints } from './endpoints';
 import type { Transaction } from '../types/dto';
 
 type TransactionPayload = {
@@ -20,21 +21,21 @@ type TransactionFilters = {
 };
 
 export const getTransactions = async (filters?: TransactionFilters) => {
-  const response = await api.get('/transacoes', { params: filters });
+  const response = await api.get(endpoints.transactions.list, { params: filters });
   return extractData<Transaction[]>(response);
 };
 
 export const createTransaction = async (payload: TransactionPayload) => {
-  const response = await api.post('/transacoes', payload);
+  const response = await api.post(endpoints.transactions.create, payload);
   return extractData<Transaction>(response);
 };
 
 export const updateTransaction = async (id: string, payload: TransactionPayload) => {
-  const response = await api.put(`/transacoes/${id}`, payload);
+  const response = await api.put(endpoints.transactions.update(id), payload);
   return extractData<Transaction>(response);
 };
 
 export const deleteTransaction = async (id: string) => {
-  const response = await api.delete(`/transacoes/${id}`);
+  const response = await api.delete(endpoints.transactions.remove(id));
   return extractData<boolean>(response);
 };

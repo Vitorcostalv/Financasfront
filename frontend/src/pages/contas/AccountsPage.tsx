@@ -10,6 +10,7 @@ import AccountFormModal from './AccountFormModal';
 import { getAccounts, createAccount } from '../../services/accounts.service';
 import { formatCentsToBRL } from '../../utils/money';
 import { useToast } from '../../hooks/useToast';
+import { getApiErrorMessage } from '../../utils/apiResponse';
 
 const AccountsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +26,12 @@ const AccountsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       setIsModalOpen(false);
     },
-    onError: () => addToast({ title: 'Falha ao criar conta', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao criar conta',
+        description: getApiErrorMessage(error, 'Falha ao criar conta.'),
+        variant: 'error',
+      }),
   });
 
   return (

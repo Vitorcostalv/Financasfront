@@ -28,3 +28,16 @@ export const extractErrors = (payload: any): string[] => {
   }
   return [];
 };
+
+export const getApiErrorMessage = (error: any, fallback: string) => {
+  const payload = error?.response?.data ?? error;
+  const errors = extractErrors(payload);
+  if (errors.length > 0) {
+    return errors[0];
+  }
+  const message = extractMessage(payload);
+  if (message && message !== 'Ocorreu um erro inesperado.') {
+    return message;
+  }
+  return fallback;
+};

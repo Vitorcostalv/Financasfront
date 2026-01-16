@@ -15,6 +15,7 @@ import { getCategories } from '../../services/categories.service';
 import { formatCentsToBRL } from '../../utils/money';
 import { formatDateBR, getCurrentMonthYear, getMonthOptions } from '../../utils/dates';
 import { useToast } from '../../hooks/useToast';
+import { getApiErrorMessage } from '../../utils/apiResponse';
 import type { Transaction } from '../../types/dto';
 
 const TransactionsPage = () => {
@@ -61,8 +62,12 @@ const TransactionsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       setIsModalOpen(false);
     },
-    onError: () => {
-      addToast({ title: 'Falha ao criar transacao', variant: 'error' });
+    onError: (error) => {
+      addToast({
+        title: 'Falha ao criar transacao',
+        description: getApiErrorMessage(error, 'Falha ao criar transacao.'),
+        variant: 'error',
+      });
     },
   });
 
@@ -73,8 +78,12 @@ const TransactionsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       setIsModalOpen(false);
     },
-    onError: () => {
-      addToast({ title: 'Falha ao atualizar transacao', variant: 'error' });
+    onError: (error) => {
+      addToast({
+        title: 'Falha ao atualizar transacao',
+        description: getApiErrorMessage(error, 'Falha ao atualizar transacao.'),
+        variant: 'error',
+      });
     },
   });
 
@@ -84,8 +93,12 @@ const TransactionsPage = () => {
       addToast({ title: 'Transacao removida', variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },
-    onError: () => {
-      addToast({ title: 'Falha ao remover transacao', variant: 'error' });
+    onError: (error) => {
+      addToast({
+        title: 'Falha ao remover transacao',
+        description: getApiErrorMessage(error, 'Falha ao remover transacao.'),
+        variant: 'error',
+      });
     },
   });
 

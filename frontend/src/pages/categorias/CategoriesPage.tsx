@@ -9,6 +9,7 @@ import ErrorState from '../../components/feedback/ErrorState';
 import CategoryFormModal from './CategoryFormModal';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../services/categories.service';
 import { useToast } from '../../hooks/useToast';
+import { getApiErrorMessage } from '../../utils/apiResponse';
 import type { Category } from '../../types/dto';
 
 const CategoriesPage = () => {
@@ -26,7 +27,12 @@ const CategoriesPage = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setIsModalOpen(false);
     },
-    onError: () => addToast({ title: 'Falha ao criar categoria', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao criar categoria',
+        description: getApiErrorMessage(error, 'Falha ao criar categoria.'),
+        variant: 'error',
+      }),
   });
 
   const updateMutation = useMutation({
@@ -36,7 +42,12 @@ const CategoriesPage = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setIsModalOpen(false);
     },
-    onError: () => addToast({ title: 'Falha ao atualizar categoria', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao atualizar categoria',
+        description: getApiErrorMessage(error, 'Falha ao atualizar categoria.'),
+        variant: 'error',
+      }),
   });
 
   const deleteMutation = useMutation({
@@ -45,7 +56,12 @@ const CategoriesPage = () => {
       addToast({ title: 'Categoria removida', variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
-    onError: () => addToast({ title: 'Falha ao remover categoria', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao remover categoria',
+        description: getApiErrorMessage(error, 'Falha ao remover categoria.'),
+        variant: 'error',
+      }),
   });
 
   return (

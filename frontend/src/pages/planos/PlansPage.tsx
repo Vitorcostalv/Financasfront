@@ -10,6 +10,7 @@ import ErrorState from '../../components/feedback/ErrorState';
 import PlanFormModal from './PlanFormModal';
 import { getPlans, createPlan, updatePlan, deletePlan } from '../../services/plans.service';
 import { useToast } from '../../hooks/useToast';
+import { getApiErrorMessage } from '../../utils/apiResponse';
 import type { Plan } from '../../types/dto';
 
 const PlansPage = () => {
@@ -28,7 +29,12 @@ const PlansPage = () => {
       queryClient.invalidateQueries({ queryKey: ['plans'] });
       setIsModalOpen(false);
     },
-    onError: () => addToast({ title: 'Falha ao criar plano', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao criar plano',
+        description: getApiErrorMessage(error, 'Falha ao criar plano.'),
+        variant: 'error',
+      }),
   });
 
   const updateMutation = useMutation({
@@ -38,7 +44,12 @@ const PlansPage = () => {
       queryClient.invalidateQueries({ queryKey: ['plans'] });
       setIsModalOpen(false);
     },
-    onError: () => addToast({ title: 'Falha ao atualizar plano', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao atualizar plano',
+        description: getApiErrorMessage(error, 'Falha ao atualizar plano.'),
+        variant: 'error',
+      }),
   });
 
   const deleteMutation = useMutation({
@@ -47,7 +58,12 @@ const PlansPage = () => {
       addToast({ title: 'Plano removido', variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['plans'] });
     },
-    onError: () => addToast({ title: 'Falha ao remover plano', variant: 'error' }),
+    onError: (error) =>
+      addToast({
+        title: 'Falha ao remover plano',
+        description: getApiErrorMessage(error, 'Falha ao remover plano.'),
+        variant: 'error',
+      }),
   });
 
   return (
