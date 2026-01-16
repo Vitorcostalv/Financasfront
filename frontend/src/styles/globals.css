@@ -1,0 +1,59 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-app-bg text-slate-100 font-sans antialiased;
+  background-image: radial-gradient(circle at top, rgba(0, 209, 178, 0.15), transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.12), transparent 50%);
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0f1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2a40;
+  border-radius: 999px;
+}
+
+.app-card {
+  @apply bg-app-panel border border-app-border rounded-2xl p-6 shadow-glow;
+}
+
+.app-input {
+  @apply w-full rounded-xl border border-app-border bg-app-panelAlt px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-app-accent focus:outline-none focus:ring-2 focus:ring-app-accent/30;
+}
+
+.app-label {
+  @apply text-xs uppercase tracking-[0.2em] text-slate-400;
+}
+
+.app-chip {
+  @apply inline-flex items-center rounded-full bg-app-panelAlt px-3 py-1 text-xs text-slate-300;
+}
+
+.app-table {
+  @apply w-full text-left text-sm;
+}
+
+.app-table thead {
+  @apply text-xs uppercase tracking-widest text-slate-400;
+}
+
+.app-table tbody tr {
+  @apply border-t border-app-border;
+}
